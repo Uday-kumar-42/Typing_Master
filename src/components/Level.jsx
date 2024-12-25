@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function Level({ setLevel }) {
+export default function Level({ dispatch }) {
   return (
     <div className="level">
       <p>
@@ -13,7 +13,8 @@ export default function Level({ setLevel }) {
           className="button primary-button"
           style={{ minWidth: "7rem" }}
           onClick={() => {
-            setLevel("easy");
+            dispatch({ type: "setEasy" });
+            dispatch({ type: "active" });
           }}
         >
           Easy
@@ -22,7 +23,8 @@ export default function Level({ setLevel }) {
           className="button primary-button"
           style={{ minWidth: "7rem" }}
           onClick={() => {
-            setLevel("medium");
+            dispatch({ type: "setMedium" });
+            dispatch({ type: "active" });
           }}
         >
           Medium
@@ -31,7 +33,8 @@ export default function Level({ setLevel }) {
           className="button primary-button"
           style={{ minWidth: "7rem" }}
           onClick={() => {
-            setLevel("hard");
+            dispatch({ type: "setHard" });
+            dispatch({ type: "active" });
           }}
         >
           Hard

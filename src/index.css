@@ -154,7 +154,9 @@ header .nav-buttons {
   border: none;
   border-radius: 20px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 16px;
+  width: 40%;
+  align-self: center;
 }
 
 .primary-button {
@@ -464,9 +466,9 @@ header .nav-buttons {
 }
 
 .time-label {
-  font-size: 12px;
+  font-size: 14px;
   color: var(--secondary-color);
-  font-weight: 500;
+  font-weight: 600;
   margin-top: 5px;
 }
 /* Timer section */

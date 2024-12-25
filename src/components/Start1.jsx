@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function Start1({ setStarted }) {
+export default function Start1({ dispatch }) {
   return (
     <div className="start1">
       <img src="./assets/speed.png" alt="boost_up"></img>
@@ -15,9 +15,9 @@ export default function Start1({ setStarted }) {
         </p>
         <button
           className="button primary-button"
-          style={{ minWidth: "10rem", fontSize: "20px" }}
+          // style={{ minWidth: "10rem", fontSize: "20px" }}
           onClick={() => {
-            setStarted(true);
+            dispatch({ type: "ready" });
           }}
         >
           START

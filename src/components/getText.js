@@ -18,7 +18,7 @@ export default function getText(wpm, acc) {
   } else if (wpm >= 25 && wpm < 50 && acc >= 50 && acc < 75) {
     text = `Great speed! Work on raising your accuracy to 75% or more for better typing efficiency.`;
   } else if (wpm >= 25 && wpm < 50 && acc >= 75) {
-    text = `Fantastic, this is an important milestone on your typing journey. Challenge yourself to hit 50 WPM and aim for 90% accuracy next.`;
+    text = `Fantastic, this is an important milestone on your typing journey. Challenge yourself to hit 50 WPM.`;
   } else if (wpm >= 50 && wpm < 75 && acc < 50) {
     text = `Impressive speed, but accuracy is key. Slow down a little to focus on reducing mistakes.`;
   } else if (wpm >= 50 && wpm < 75 && acc >= 50 && acc < 75) {

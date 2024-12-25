@@ -4,7 +4,7 @@ import React from "react";
 export default function String({ str, position }) {
   const [visibleWords, setVisibleWords] = useState("");
   const [curr, setCurr] = useState(0);
-
+  console.log(position);
   useEffect(
     function () {
       if (str !== null) {

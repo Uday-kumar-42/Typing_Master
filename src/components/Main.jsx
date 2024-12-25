@@ -1,4 +1,4 @@
-import { React, useEffect, useRef, useState } from "react";
+import { React, useEffect, useReducer, useRef, useState } from "react";
 import KeyBoard from "./KeyBoard";
 // import Start from "./Start";
 import Level from "./Level";
@@ -136,87 +136,129 @@ const hardSamples = [
   },
 ];
 
+const initialState = {
+  str: null,
+  status: "notStarted",
+  level: null,
+};
+
+function reducer(state, action) {
+  switch (action.type) {
+    case "ready":
+      return { ...state, status: "ready" };
+    case "active":
+      return { ...state, status: "active" };
+    case "finished":
+      return { ...state, status: "finished" };
+    case "setEasy":
+      return { ...state, level: "easy" };
+    case "setMedium":
+      return { ...state, level: "medium" };
+    case "setHard":
+      return { ...state, level: "hard" };
+    case "easy":
+      return { ...state, str: action.payload };
+    case "medium":
+      return { ...state, str: action.payload };
+    case "hard":
+      return { ...state, str: action.payload };
+    case "reset":
+      return { ...initialState, status: "ready" };
+    default:
+      throw new Error("Unknown action type");
+  }
+}
+
 export default function Main() {
+  const [state, dispatch] = useReducer(reducer, initialState);
+  const { str, status, level } = state;
   const count = useRef(0);
   const initial = useRef(0);
   const time = useRef(0);
-  const [position, setPositoin] = useState(0);
+  const [position, setPosition] = useState(0);
   const [selected, setSelected] = useState(null);
-  const [level, setLevel] = useState(null);
-  const [started, setStarted] = useState(false);
-  const [str, setStr] = useState(null);
-  const [words, SetWords] = useState(0);
+  const [words, setWords] = useState(0);
 
   useEffect(
     function () {
       const random = Math.floor(Math.random() * 10);
 
       if (level === "easy") {
-        setStr(easySamples[random].text);
+        dispatch({ type: "easy", payload: easySamples[random].text });
       } else if (level === "medium") {
-        setStr(mediumSamples[random].text);
+        dispatch({ type: "medium", payload: mediumSamples[random].text });
       } else if (level === "hard") {
-        setStr(hardSamples[random].text);
+        dispatch({ type: "hard", payload: hardSamples[random].text });
       }
     },
     [level]
   );
 
-  useEffect(function () {
-    function handleKeyPress(e) {
-      // console.log(e.keyCode , str.charCodeAt(position))
-      // console.log(e);
-      const ascii = e.keyCode === 32 ? e.keyCode : e.keyCode + 32;
-      if (level !== null) {
-        e.code === "Space" && e.preventDefault();
+  useEffect(
+    function () {
+      function handleKeyPress(e) {
+        console.log(e);
+        if (level !== null) {
+          if (e.keyCode === 20 || e.keyCode === 16) {
+            return;
+          }
+          e.code === "Space" && e.preventDefault();
+          const ascii = e.keyCode === 32 ? e.keyCode : e.keyCode + 32;
+          if (e.code === "Backspace") {
+            if (position > 0) {
+              if (str.charCodeAt(position) === 32) {
+                setWords((words) => (words > 0 ? words - 1 : 0));
+              }
+              setPosition((position) => position - 1);
+              count.current = Math.max(0, count.current - 1);
+              return;
+            }
+          } else {
+            if (str.charCodeAt(position) === 32) {
+              setWords((words) => words + 1);
+            }
 
-        if (e.code === "Backspace" && position > 0) {
-          setPositoin((position) => position - 1);
-          count.current = count.current - 1;
-          return;
-        }
+            if (position === 0) {
+              initial.current = e.timeStamp;
+            }
 
-        if (str.charCodeAt(position) === 32 && e.code !== "Backspace") {
-          SetWords((words) => words + 1);
-        }
+            if (
+              ascii === str.charCodeAt(position) ||
+              e.key === str.charAt(position)
+            ) {
+              console.log("matched");
+              count.current = count.current + 1;
+            }
 
-        if (position === 0 && e.code !== "Backspace") {
-          initial.current = e.timeStamp;
-        }
-
-        if (ascii === str.charCodeAt(position) && position < str.length) {
-          console.log("matched");
-          count.current = count.current + 1;
-        }
-
-        if (position < str.length - 1) {
-          setSelected(ascii);
-          time.current = e.timeStamp - initial.current;
-          setPositoin((position) => position + 1);
-        } else {
-          setSelected(null);
-          setLevel(null);
-          setStarted(false);
+            if (position < str.length - 1) {
+              setSelected(ascii);
+              time.current = e.timeStamp - initial.current;
+              setPosition((position) => position + 1);
+            } else {
+              dispatch({ type: "finished" });
+            }
+          }
         }
       }
-    }
 
-    document.addEventListener("keydown", handleKeyPress);
+      document.addEventListener("keydown", handleKeyPress);
 
-    return function () {
-      document.removeEventListener("keydown", handleKeyPress);
-    };
-  });
+      return function () {
+        document.removeEventListener("keydown", handleKeyPress);
+      };
+    },
+    [position, level, str]
+  );
 
   return (
     <div className="main">
-      {!started && !str && (
+      {status === "notStarted" && (
         <>
-          <Start1 setStarted={setStarted} />
+          <Start1 dispatch={dispatch} />
         </>
       )}
-      {started && !level && <Level setLevel={setLevel} />}
-      {level !== null && (
+      {status === "ready" && <Level dispatch={dispatch} />}
+      {status === "active" && (
         <>
           <String str={str} position={position} />
           <DynamicResults
@@ -229,12 +271,16 @@ export default function Main() {
           <KeyBoard selected={selected} position={position} />
         </>
       )}
-      {level === null && str !== null && (
+      {status === "finished" && (
         <FinalResults
           words={words}
           time={time}
           count={count}
           position={position}
+          dispatch={dispatch}
+          setPosition={setPosition}
+          setSelected={setSelected}
+          setWords={setWords}
         />
       )}
     </div>
